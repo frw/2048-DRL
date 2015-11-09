@@ -91,9 +91,9 @@ class BaseLearner(object):
     def end_epoch(self, score):
         self.scores.append(score)
 
-    def action_callback(self, raw_state):
+    def action_callback(self, raw_state, possible_moves):
         new_state = self.process_state(raw_state)
-        new_action = self.decide_action(new_state)
+        new_action = self.decide_action(new_state, possible_moves)
 
         self.last_state = new_state
         self.last_action = new_action
@@ -110,8 +110,7 @@ class BaseLearner(object):
                     state.append(np.log2(col))
         return tuple(state)
 
-
-    def decide_action(self, new_state):
+    def decide_action(self, new_state, possible_moves):
         return npr.choice(ACTIONS)
 
     def reward_callback(self, reward):
@@ -152,5 +151,5 @@ class QLearner(BaseLearner):
 
         return new_state
 
-    def decide_action(self, new_state):
+    def decide_action(self, new_state, possible_moves):
         return self.explorer.decide_action(self.epoch, self.Q[new_state])

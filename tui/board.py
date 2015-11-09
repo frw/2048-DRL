@@ -100,6 +100,39 @@ class Board(object):
         for i in xrange(0, self.__size):
             self.set_cell(x, i, l[i])
 
+    def possible_moves(self):
+        """return a list of possible moves for the current board"""
+        moves = set()
+
+        for y in self.__size_range:
+            for x in self.__size_range:
+                c = self.get_cell(x, y)
+
+                if c == 0:
+                    continue
+
+                if y > 0:
+                    up = self.get_cell(x, y - 1)
+                    if up == c or up == 0:
+                        moves.add(Board.UP)
+
+                if y < self.__size - 1:
+                    down = self.get_cell(x, y + 1)
+                    if down == c or down == 0:
+                        moves.add(Board.DOWN)
+
+                if x > 0:
+                    left = self.get_cell(x - 1, y)
+                    if left == c or left == 0:
+                        moves.add(Board.LEFT)
+
+                if x < self.__size - 1:
+                    right = self.get_cell(x + 1, y)
+                    if right == c or right == 0:
+                        moves.add(Board.RIGHT)
+
+        return moves
+
     def __move_and_merge(self, line, d):
         """
         Merge tiles in a line or column according to a direction and return a

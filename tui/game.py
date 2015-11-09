@@ -192,7 +192,8 @@ class Game(object):
                     break
 
                 if self.__ai is not None:
-                    m = self.__ai.action_callback(self.board.cells)
+                    m = self.__ai.action_callback(self.board.cells,
+                                                  self.board.possible_moves())
                 else:
                     m = None
                     while m is None:
