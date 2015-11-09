@@ -188,7 +188,7 @@ class Game(object):
             while True:
                 self.clear_screen()
                 print(self.__str__(margins=margins, change=change))
-                if self.board.won() or not self.board.can_move():
+                if not self.board.can_move():
                     break
 
                 if self.__ai is not None:
