@@ -24,7 +24,6 @@ class Game(object):
         keypress.DOWN:    Board.DOWN,
         keypress.LEFT:    Board.LEFT,
         keypress.RIGHT:   Board.RIGHT,
-        keypress.SPACE:   Board.PAUSE,
     }
 
     __is_windows = os.name == 'nt'
@@ -63,17 +62,15 @@ class Game(object):
     }
 
     SCORES_FILE = '%s/.term2048.scores' % os.path.expanduser('~')
-    STORE_FILE = '%s/.term2048.store' % os.path.expanduser('~')
 
     def __init__(self, scores_file=SCORES_FILE, colors=COLORS,
-                 store_file=STORE_FILE, clear_screen=True,
-                 mode=None, azmode=False, **kws):
+                 clear_screen=True, mode=None, azmode=False,
+                 ai=None, **kws):
         """
         Create a new game.
             scores_file: file to use for the best score (default
                          is ~/.term2048.scores)
             colors: dictionary with colors to use for each tile
-            store_file: file that stores game session's snapshot
             mode: color mode. This adjust a few colors and can be 'dark' or
                   'light'. See the adjustColors functions for more info.
             other options are passed to the underlying Board object.
@@ -82,7 +79,6 @@ class Game(object):
         self.score = 0
         self.best_score = 0
         self.__scores_file = scores_file
-        self.__store_file = store_file
         self.__clear_screen = clear_screen
 
         self.__colors = colors
@@ -90,6 +86,8 @@ class Game(object):
         self.__az = {}
         for i in range(1, int(math.log(self.board.goal(), 2))):
             self.__az[2 ** i] = chr(i + 96)
+
+        self.__ai = ai
 
         self.load_best_score()
         self.adjust_colors(mode)
@@ -147,52 +145,6 @@ class Game(object):
         k = keypress.get_key()
         return Game.__dirs.get(k)
 
-    def store(self):
-        """
-        save the current game session's score and data for further use
-        """
-        size = self.board.SIZE
-        cells = []
-
-        for i in range(size):
-            for j in range(size):
-                cells.append(str(self.board.get_cell(j, i)))
-
-        score_str = "%s\n%d" % (' '.join(cells), self.score)
-
-        try:
-            with open(self.__store_file, 'w') as f:
-                f.write(score_str)
-        except IOError:
-            return False
-        return True
-
-    def restore(self):
-        """
-        restore the saved game score and data
-        """
-
-        size = self.board.SIZE
-
-        try:
-            with open(self.__store_file, 'r') as f:
-                lines = f.readlines()
-                score_str = lines[0]
-                self.score = int(lines[1])
-        except IOError:
-            return False
-
-        score_str_list = score_str.split(' ')
-        count = 0
-
-        for i in range(size):
-            for j in range(size):
-                value = score_str_list[count]
-                self.board.set_cell(j, i, int(value))
-                count += 1
-
-        return True
-
     def clear_screen(self):
         """Clear the console"""
         if self.__clear_screen:
@@ -238,25 +190,25 @@ class Game(object):
                 print(self.__str__(margins=margins, change=change))
                 if self.board.won() or not self.board.can_move():
                     break
-                m = self.read_move()
 
-                if m == self.board.PAUSE:
-                    self.save_best_score()
-                    if self.store():
-                        print("Game successfully saved. "
-                              "Resume it with `term2048 --resume`.")
-                        return self.score
-                    print("An error ocurred while saving your game.")
-                    return
+                if self.__ai is not None:
+                    m = self.__ai.action_callback(self.board.cells)
+                else:
+                    m = None
+                    while m is None:
+                        m = self.read_move()
 
                 score_inc = self.board.move(m)
                 self.increment_score(score_inc)
+
+                if self.__ai is not None:
+                    self.__ai.reward_callback(score_inc)
 
                 change = (score_inc, move_str.get(m))
 
         except KeyboardInterrupt:
             self.save_best_score()
-            return
+            return None
 
         self.save_best_score()
         print('You won!' if self.board.won() else 'Game Over')
@@ -301,4 +253,9 @@ class Game(object):
         board = self.board_to_str(margins=margins)
         scores = left + 'Score: %7d  Best: %7d\n' % (self.score, self.best_score)
         changes = '\n' if change is None else left + '+%13d  %s\n' % change
-        return top + board + '\n\n' + scores + changes + bottom
+        output = top + board + '\n\n' + scores + changes + bottom
+
+        if self.__ai is None:
+            return output
+        else:
+            return ('Epoch: %d\n' % self.__ai.epoch) + output

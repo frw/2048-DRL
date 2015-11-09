@@ -5,6 +5,7 @@ import argparse
 import sys
 
 from tui.game import Game
+from rl.reinforcement_learner import QLearner
 
 
 def print_rules_and_exit():
@@ -18,11 +19,11 @@ def parse_cli_args():
     """parse args from the CLI and return a dict"""
     parser = argparse.ArgumentParser(description='2048 in your terminal')
     parser.add_argument('--mode', dest='mode', type=str,
-                        default=None, help='colors mode (dark or light)')
+                        default=None, help='Color mode (dark or light)')
     parser.add_argument('--az', dest='azmode', action='store_true',
                         help='Use the letters a-z instead of numbers')
-    parser.add_argument('--resume', dest='resume', action='store_true',
-                        help='restart the game from where you left')
+    parser.add_argument('--ai', dest='ai', action='store_true',
+                        help='Play the game using an AI')
     parser.add_argument('-r', '--rules', action='store_true')
     return vars(parser.parse_args())
 
@@ -37,11 +38,35 @@ def start_game():
     if args['rules']:
         print_rules_and_exit()
 
-    game = Game(**args)
-    if args['resume']:
-        game.restore()
+    if args['ai']:
+        ai = QLearner().load()
+        args['ai'] = ai
+    else:
+        ai = None
+        del args['ai']
 
-    return game.loop()
+    if ai is not None:
+        saved = False
+        while True:
+            ai.new_epoch()
+
+            game = Game(**args)
+            score = game.loop()
+            if score is None:
+                break
+
+            ai.end_epoch(score)
+            saved = False
+
+            if ai.epoch % 1000 == 0:
+                ai.save()
+                saved = True
+
+        if not saved:
+            ai.save()
+    else:
+        game = Game(**args)
+        game.loop()
 
 if __name__ == "__main__":
     start_game()

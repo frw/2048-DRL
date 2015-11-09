@@ -2,9 +2,6 @@
 
 # Common values
 
-# Space Bar key to pause the game
-SPACE = 32
-
 # Vim keys
 K, J, L, H = 107, 106, 108, 104
 
