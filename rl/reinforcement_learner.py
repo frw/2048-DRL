@@ -114,10 +114,7 @@ class BaseLearner(object):
         return npr.choice(ACTIONS)
 
     def reward_callback(self, reward):
-        if reward < 0:
-            self.last_reward = -1000
-        else:
-            self.last_reward = 1
+        self.last_reward = reward
 
     def load(self):
         if os.path.isfile(self.filename):
@@ -152,4 +149,6 @@ class QLearner(BaseLearner):
         return new_state
 
     def decide_action(self, new_state, possible_moves):
+        if possible_moves is None:
+            return None
         return possible_moves[self.explorer.decide_action(self.epoch, self.Q[new_state][possible_moves])]

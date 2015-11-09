@@ -190,6 +190,8 @@ class Game(object):
                 self.clear_screen()
                 print(self.__str__(margins=margins, change=change))
                 if not can_move:
+                    if self.__ai is not None:
+                        self.__ai.action_callback(self.board.cells, None)
                     break
 
                 if self.__ai is not None:
