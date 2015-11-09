@@ -185,10 +185,11 @@ class Game(object):
         try:
             self.hide_cursor()
             change = None
+            can_move = True
             while True:
                 self.clear_screen()
                 print(self.__str__(margins=margins, change=change))
-                if not self.board.can_move():
+                if not can_move:
                     break
 
                 if self.__ai is not None:
@@ -201,11 +202,14 @@ class Game(object):
 
                 score_inc = self.board.move(m)
                 self.increment_score(score_inc)
+                change = (score_inc, move_str.get(m))
+
+                can_move = self.board.can_move()
+                if not can_move:
+                    score_inc -= 10000
 
                 if self.__ai is not None:
                     self.__ai.reward_callback(score_inc)
-
-                change = (score_inc, move_str.get(m))
 
         except KeyboardInterrupt:
             self.save_best_score()
