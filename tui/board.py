@@ -131,7 +131,7 @@ class Board(object):
                     if right == c or right == 0:
                         moves.add(Board.RIGHT)
 
-        return moves
+        return list(moves)
 
     def __move_and_merge(self, line, d):
         """

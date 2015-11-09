@@ -152,4 +152,4 @@ class QLearner(BaseLearner):
         return new_state
 
     def decide_action(self, new_state, possible_moves):
-        return self.explorer.decide_action(self.epoch, self.Q[new_state])
+        return possible_moves[self.explorer.decide_action(self.epoch, self.Q[new_state][possible_moves])]
