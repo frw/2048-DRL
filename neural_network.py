@@ -165,7 +165,9 @@ class QNetwork(object):
         '''
         state_action_rep = np.zeros(20)
         state_action_rep[:16] = np.asarray(raw_state)
+        print raw_action
         state_action_rep[16 + raw_action] = 1.0
+        return state_action_rep
 
 
 
@@ -174,6 +176,11 @@ class QNetwork(object):
 #Some haphazard extra code to test the neural network.
 '''
 my_nn = QNetwork()
+hello = my_nn.use_model((1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1), 2)
+#test_array = np.ones(20)
+#hello = my_nn.use_model(test_array)
+print hello'''
+'''
 test_array = np.ones(20)
 tester = np.ones(20) * 2.0
 for i in range(5000):

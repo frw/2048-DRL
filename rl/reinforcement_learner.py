@@ -167,6 +167,9 @@ class DeepQLearner (BaseLearner):
         if possible_moves is None:
             return None
 
+        if not self.last_state:
+           return npr.choice(possible_moves)
+
         #compute Q-scores with forward propogation
         list_Qscore = []
         for entry in range(len(possible_moves)):
@@ -177,12 +180,18 @@ class DeepQLearner (BaseLearner):
         best_move = possible_moves[list_Qscore.index(best_Qscore)]
 
         #update weights with backpropogation
-        self.network.update_model(self.last_state, self.last_action, (self.last_reward + self.discount_rate * best_Qscore))
+        #reward_to_use = 0.0
+        #if self.last_reward:
+        #    reward_to_use = self.last_reward 
 
-        return possible_moves[self.explorer.decide_action(self.epoch, list_Qscore)]
 
 
 
+        self.network.update_model(self.last_state, self.last_action, float(self.last_reward + self.discount_rate * best_Qscore))
+
+        #return best_move
+
+        return possible_moves[self.explorer.decide_action(self.epoch, np.asarray(list_Qscore))]
 
 
 

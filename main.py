@@ -34,13 +34,14 @@ def start_game():
     Start a new game. If ``debug`` is set to ``True``, the game object is
     returned and the game loop isn't fired.
     """
+
     args = parse_cli_args()
 
     if args['rules']:
         print_rules_and_exit()
 
     if args['ai']:
-        ai = StandardQLearner().load()
+        ai = DeepQLearner().load()
         args['ai'] = ai
     else:
         ai = None
@@ -59,9 +60,10 @@ def start_game():
             ai.end_epoch(score)
             saved = False
 
-            if ai.epoch % 1000 == 0:
+            if ai.epoch % 1000 == 0: #changed by robert
                 ai.save()
                 saved = True
+                break #added by robert
 
         if not saved:
             ai.save()
