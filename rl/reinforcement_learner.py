@@ -6,6 +6,8 @@ import os
 
 from tui.board import Board
 
+import neural_network
+
 ACTIONS = [Board.UP, Board.DOWN, Board.LEFT, Board.RIGHT]
 
 def draw_greedy(values):
@@ -128,15 +130,15 @@ class BaseLearner(object):
             pickle.dump(self, outfile, pickle.HIGHEST_PROTOCOL)
 
 
-class QLearner(BaseLearner):
+class StandardQLearner(BaseLearner):
     def __init__(self):
-        super(QLearner, self).__init__()
+        super(StandardQLearner, self).__init__()
         self.learning_rate = 0.3
         self.discount_rate = 0.95
         self.Q = {}
 
     def process_state(self, raw_state):
-        new_state = super(QLearner, self).process_state(raw_state)
+        new_state = super(StandardQLearner, self).process_state(raw_state)
 
         if new_state not in self.Q:
             self.Q[new_state] = np.zeros(4)
@@ -152,3 +154,40 @@ class QLearner(BaseLearner):
         if possible_moves is None:
             return None
         return possible_moves[self.explorer.decide_action(self.epoch, self.Q[new_state][possible_moves])]
+
+
+class DeepQLearner (BaseLearner):
+    def __init__(self):
+        super(DeepQLearner, self).__init__()
+        self.discount_rate = 0.95
+        self.network = neural_network.QNetwork()
+        self.last_forward_pass = 0.0
+
+    def decide_action(self, new_state, possible_moves):
+        if possible_moves is None:
+            return None
+
+        #compute Q-scores with forward propogation
+        list_Qscore = []
+        for entry in range(len(possible_moves)):
+            list_Qscore.append(self.network.use_model(new_state, possible_moves[entry]))
+
+        # get the best action & Q-score from current state
+        best_Qscore = max(list_Qscore)
+        best_move = possible_moves[list_Qscore.index(best_Qscore)]
+
+        #update weights with backpropogation
+        self.network.update_model(self.last_state, self.last_action, (self.last_reward + self.discount_rate * best_Qscore))
+
+        return possible_moves[self.explorer.decide_action(self.epoch, list_Qscore)]
+
+
+
+
+
+
+
+
+
+
+

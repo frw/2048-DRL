@@ -13,6 +13,7 @@ class HiddenLayer(object):
                  activation=T.tanh):
         self.input = input
 
+        # initialize weights into this layer
         if W is None:
             W_values = np.asarray(
                 rng.uniform(
@@ -27,6 +28,7 @@ class HiddenLayer(object):
 
             W = theano.shared(value=W_values, name='W', borrow=True)
 
+        # initialize bias term weights into this layer
         if b is None:
             b_values = np.zeros((n_out,), dtype=theano.config.floatX)
             b = theano.shared(value=b_values, name='b', borrow=True)
@@ -149,14 +151,21 @@ class QNetwork(object):
             allow_input_downcast=True
         )
 
-    def update_model (self, state_action_rep, target_value):
-        return self.train_model(state_action_rep, target_value)
+    def update_model (self, current_state, current_action, target_value):
+        state_action_rep = self.generate_network_inputs(current_state, current_action)
+        self.train_model(state_action_rep, target_value)
 
-    def use_model (self, state_action_rep):
+    def use_model (self, current_state, current_action):
+        state_action_rep = self.generate_network_inputs(current_state, current_action)
         return self.run_model(state_action_rep)
 
-
-my_nn = QNetwork()
+    def generate_network_inputs (self, raw_state, raw_action):
+        '''
+        Transforms state/action pair into input features for the network.
+        '''
+        state_action_rep = np.zeros(20)
+        state_action_rep[:16] = np.asarray(raw_state)
+        state_action_rep[16 + raw_action] = 1.0
 
 
 
@@ -164,27 +173,29 @@ my_nn = QNetwork()
 
 #Some haphazard extra code to test the neural network.
 '''
+my_nn = QNetwork()
 test_array = np.ones(20)
 tester = np.ones(20) * 2.0
-for i in range(500):
+for i in range(5000):
     hello,hello2 = my_nn.update_model(test_array,20.0)
     print hello
     print hello2
     h1, h2 = my_nn.update_model(tester,10.0)
     print h1
-    print h2
+    print h2'
 x_data3 = np.array([1,2,3,4,5])
 x_data2 = np.random.permutation(x_data3)
 x_data = np.tile(x_data2,(20,1))
-y_data = x_data2 * 3.0 + (np.random.normal() * 0.01)
+y_data = x_data2 * 3.0 #+ (np.random.normal(5) * 0.01)
 print y_data
 for k in range(50000):
     for i in range(y_data.shape[0]):
         next_step, n2 = my_nn.update_model(x_data[:,i],y_data[i])
-        result = my_nn.use_model(x_data[:,i])
+        #result = my_nn.use_model(x_data[:,i])
         if k % 1000 == 0:
+            print "cost:"
             print next_step
+            print "prediction:"
             print n2
-            print result
-            print y_data[i]
-'''
+            print "actual:"
+            print y_data[i]'''
