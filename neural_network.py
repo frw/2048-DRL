@@ -151,6 +151,12 @@ class QNetwork(object):
             allow_input_downcast=True
         )
 
+        self.grab_weights = theano.function(
+            inputs=[],
+            outputs=classifier.params,
+            allow_input_downcast=True
+        )
+
     def update_model (self, current_state, current_action, target_value):
         state_action_rep = self.generate_network_inputs(current_state, current_action)
         self.train_model(state_action_rep, target_value)
@@ -168,17 +174,23 @@ class QNetwork(object):
         state_action_rep[16 + raw_action] = 1.0
         return state_action_rep
 
-
-
+    def get_all_weights (self):
+        '''
+        Returns all network weights. Format: list of 2-D (inter-node weights) 
+        numpy arrays and 1-D (bias term) numpy arrays.
+        '''
+        return self.grab_weights()
 
 
 #Some haphazard extra code to test the neural network.
-'''
+
 my_nn = QNetwork()
-hello = my_nn.use_model((1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1), 2)
-#test_array = np.ones(20)
-#hello = my_nn.use_model(test_array)
-print hello'''
+for i in range(1):
+    hello = my_nn.use_model((1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1), 2)
+    #test_array = np.ones(20)
+    #hello = my_nn.use_model(test_array)
+    print hello
+    print my_nn.get_all_weights()
 '''
 test_array = np.ones(20)
 tester = np.ones(20) * 2.0
@@ -188,7 +200,7 @@ for i in range(5000):
     print hello2
     h1, h2 = my_nn.update_model(tester,10.0)
     print h1
-    print h2'
+    print h2
 x_data3 = np.array([1,2,3,4,5])
 x_data2 = np.random.permutation(x_data3)
 x_data = np.tile(x_data2,(20,1))
@@ -205,3 +217,4 @@ for k in range(50000):
             print n2
             print "actual:"
             print y_data[i]'''
+

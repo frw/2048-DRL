@@ -35,7 +35,12 @@ def start_game():
     returned and the game loop isn't fired.
     """
 
-    all_scores = [] #added by robert
+    ###this section temporarily changed by robert
+    all_scores = [] 
+    weight_tracker = [] 
+    other_weight_tracker = [] 
+    another_weight_tracker = []
+    ######
 
     args = parse_cli_args()
 
@@ -62,12 +67,20 @@ def start_game():
             ai.end_epoch(score)
             saved = False
 
+            ###this section temporarily changed by robert
             all_scores.append(score) #robert
-            if ai.epoch % 5000 == 0: #changed by robert
+            weight_tracker.append(float(ai.network.get_all_weights()[2][7]))
+            other_weight_tracker.append(ai.network.get_all_weights()[0][3,8])
+            another_weight_tracker.append(ai.network.get_all_weights()[1][2])
+            if ai.epoch % 200 == 0: #changed by robert
                 ai.save()
                 saved = True
                 print (all_scores) #robert
+                print (weight_tracker)
+                print (other_weight_tracker)
+                print (another_weight_tracker)
                 break #added by robert
+            #####
 
         if not saved:
             ai.save()
