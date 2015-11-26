@@ -27,4 +27,4 @@ def graph(filename):
     else:
         print('Cannot find file!')
 
-graph('../QLearner.pkl.gz')
+graph('DeepQLearner.pkl.gz')
