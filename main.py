@@ -60,7 +60,7 @@ def start_game():
             ai.end_epoch(score)
             saved = False
 
-            if ai.epoch % 1000 == 0:
+            if ai.epoch % 100 == 0:
                 ai.save()
                 saved = True
 

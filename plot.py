@@ -18,7 +18,7 @@ def plot_scores(scores, title):
     pl.show()
 
 def plot_select_general_weights(weights, title):
-    indices = np.arange(1, len(weights) + 1) * 100
+    indices = np.arange(1, len(weights) + 1) #* 100
 
     #1st element = which layer, 2nd element = preceding layer node #, 3rd element = next layer node #
     weight_list = [[0,0,0], [0,0,1], [0,10,0], [0,10,1], [0,16,0], [0,16,1], [0,17,0], [0,17,1], [2,0,0], [2,1,0]]
