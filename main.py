@@ -72,7 +72,7 @@ def start_game():
             weight_tracker.append(float(ai.network.get_all_weights()[2][7]))
             other_weight_tracker.append(ai.network.get_all_weights()[0][3,8])
             another_weight_tracker.append(ai.network.get_all_weights()[1][2])
-            if ai.epoch % 200 == 0: #changed by robert
+            if ai.epoch % 500 == 0: #changed by robert
                 ai.save()
                 saved = True
                 print (all_scores) #robert
