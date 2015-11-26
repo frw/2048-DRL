@@ -42,9 +42,9 @@ class HiddenLayer(object):
         self.b = b
 
         #retain_prob = 0.5
-        dropout_factors = rng.randint(0,2, size=n_in)#rng.binomial(self.b.shape, p=retain_prob, dtype=theano.config.floatX)
-        edited_dropout_factors = np.ones(n_in) - ((input[1]) * dropout_factors)
-        lin_output = (0.5 + 0.5 * input[1]) * T.dot((edited_dropout_factors * input[0]), self.W) + self.b
+        #dropout_factors = rng.randint(0,2, size=n_in)#rng.binomial(self.b.shape, p=retain_prob, dtype=theano.config.floatX)
+        #edited_dropout_factors = np.ones(n_in) - ((input[1]) * dropout_factors)
+        #lin_output = (0.5 + 0.5 * input[1]) * T.dot((edited_dropout_factors * input[0]), self.W) + self.b
 
         lin_output = T.dot(input[0], self.W) + self.b + (input[1] * 0.0)
         self.output = (
@@ -52,7 +52,7 @@ class HiddenLayer(object):
             else activation(lin_output)
         )
 
-        print dropout_factors
+        #print dropout_factors
 
         self.params = [self.W, self.b]
 
@@ -212,7 +212,7 @@ class QNetwork(object):
 
 
 #Some haphazard extra code to test the neural network.
-my_nn = QNetwork()
+#my_nn = QNetwork()
 '''
 for i in range(5000):
     hello, yo = my_nn.update_model((1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1), 2, 3)
@@ -232,6 +232,7 @@ for i in range(5000):
     h1, h2 = my_nn.update_model(tester,10.0)
     print h1
     print h2'''
+'''
 x_data3 = np.array([1,2,3,4,5])
 x_data2 = np.random.permutation(x_data3)
 x_data = np.tile(x_data2,(20,1))
@@ -250,5 +251,5 @@ for k in range(500000):
             print y_data[i]
             print "try by forward:"
             print result
-
+'''
 
