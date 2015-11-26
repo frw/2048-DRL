@@ -1,12 +1,12 @@
-import numpy as np
-import numpy.random as npr
 import cPickle as pickle
 import gzip
 import os
 
-from tui.board import Board
+import numpy as np
+import numpy.random as npr
 
-import neural_network
+from rl.neural_network import QNetwork
+from tui.board import Board
 
 ACTIONS = [Board.UP, Board.DOWN, Board.LEFT, Board.RIGHT]
 
@@ -130,6 +130,46 @@ class BaseLearner(object):
             pickle.dump(self, outfile, pickle.HIGHEST_PROTOCOL)
 
 
+class Greedy(BaseLearner):
+    def process_state(self, raw_state):
+        return raw_state
+
+    def decide_action(self, new_state, possible_moves):
+        if len(possible_moves) == 1:
+            return possible_moves[0]
+
+        best_move = None
+        for move in possible_moves:
+            score_inc = 0
+            if move == Board.UP or move == Board.DOWN:
+                for i in range(4):
+                    prev = None
+                    for j in range(4):
+                        c = new_state[j][i]
+                        if c != 0:
+                            if prev is None:
+                                prev = c
+                            elif c == prev:
+                                score_inc += c * 2
+                                prev = None
+            else:
+                for i in range(4):
+                    prev = None
+                    for j in range(4):
+                        c = new_state[i][j]
+                        if c != 0:
+                            if prev is None:
+                                prev = c
+                            elif c == prev:
+                                score_inc += c * 2
+                                prev = None
+
+            if best_move is None or score_inc > best_move[1]:
+                best_move = (move, score_inc)
+
+        return best_move[0]
+
+
 class StandardQLearner(BaseLearner):
     def __init__(self):
         super(StandardQLearner, self).__init__()
@@ -160,7 +200,7 @@ class DeepQLearner (BaseLearner):
     def __init__(self):
         super(DeepQLearner, self).__init__()
         self.discount_rate = 0.95
-        self.network = neural_network.QNetwork()
+        self.network = QNetwork()
 
     def decide_action(self, new_state, possible_moves):
         if possible_moves is None:
@@ -182,11 +222,5 @@ class DeepQLearner (BaseLearner):
         self.network.update_model(self.last_state, self.last_action, float(self.last_reward + self.discount_rate * best_Qscore))
 
         return possible_moves[self.explorer.decide_action(self.epoch, np.asarray(list_Qscore))]
-
-
-
-
-
-
 
 

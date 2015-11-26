@@ -184,6 +184,7 @@ class QNetwork(object):
 
 #Some haphazard extra code to test the neural network.
 
+'''
 my_nn = QNetwork()
 for i in range(1):
     hello = my_nn.use_model((1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1), 2)
@@ -191,7 +192,6 @@ for i in range(1):
     #hello = my_nn.use_model(test_array)
     print hello
     print my_nn.get_all_weights()
-'''
 test_array = np.ones(20)
 tester = np.ones(20) * 2.0
 for i in range(5000):
@@ -216,5 +216,6 @@ for k in range(50000):
             print "prediction:"
             print n2
             print "actual:"
-            print y_data[i]'''
+            print y_data[i]
+'''
 
