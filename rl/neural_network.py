@@ -11,6 +11,8 @@ import theano.tensor as T
 import lasagne
 from lasagne.updates import sgd, apply_momentum, adadelta, adam
 
+from theano.tensor.shared_randomstreams import RandomStreams
+
 class HiddenLayer(object):
     def __init__(self, rng, input, n_in, n_out, W=None, b=None,
                  activation=T.tanh):
@@ -20,9 +22,9 @@ class HiddenLayer(object):
         if W is None:
             W_values = np.asarray(
                 rng.uniform(
+                    size=(n_in, n_out),
                     low=-np.sqrt(6. / (n_in + n_out)),
                     high=np.sqrt(6. / (n_in + n_out)),
-                    size=(n_in, n_out)
                 ),
                 dtype=theano.config.floatX
             )
@@ -40,15 +42,17 @@ class HiddenLayer(object):
         self.b = b
 
         #retain_prob = 0.5
-        #dropout_factors = np.random.randint(0,1, size=n_in)#rng.binomial(self.b.shape, p=retain_prob, dtype=theano.config.floatX)
-        #edited_dropout_factors = np.ones(n_in) - ((input[1]) * dropout_factors)
-        #lin_output = (0.5 + 0.5 * input[1]) * T.dot((edited_dropout_factors * input[0]), self.W) + self.b
+        dropout_factors = rng.randint(0,2, size=n_in)#rng.binomial(self.b.shape, p=retain_prob, dtype=theano.config.floatX)
+        edited_dropout_factors = np.ones(n_in) - ((input[1]) * dropout_factors)
+        lin_output = (0.5 + 0.5 * input[1]) * T.dot((edited_dropout_factors * input[0]), self.W) + self.b
 
         lin_output = T.dot(input[0], self.W) + self.b + (input[1] * 0.0)
         self.output = (
             lin_output if activation is None
             else activation(lin_output)
         )
+
+        print dropout_factors
 
         self.params = [self.W, self.b]
 
@@ -120,7 +124,9 @@ class QNetwork(object):
         y = T.iscalar('y') 
         backprop_indic = T.iscalar('backprop_indic') 
 
+        #not sure the np rng is legit, theano's isn't working
         rng = np.random.RandomState(None)
+        #rng = RandomStreams(seed=234)
 
         # construct the neural network's Architecture
         architecture = Architecture(
@@ -178,8 +184,8 @@ class QNetwork(object):
         #self.train_model(state_action_rep, target_value, 1.0)
 
         #extra test
-        cost, result = self.train_model(state_action_rep, target_value, 1.0)
-        return cost, result
+        #cost, result = self.train_model(state_action_rep, target_value, 1.0)
+        #return cost, result
 
     def use_model (self, current_state, current_action):
         state_action_rep = self.generate_network_inputs(current_state, current_action)
@@ -202,9 +208,10 @@ class QNetwork(object):
         return self.grab_weights()
 
 
+
+
+
 #Some haphazard extra code to test the neural network.
-
-
 my_nn = QNetwork()
 '''
 for i in range(5000):
