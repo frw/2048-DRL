@@ -35,6 +35,8 @@ def start_game():
     returned and the game loop isn't fired.
     """
 
+    all_scores = [] #added by robert
+
     args = parse_cli_args()
 
     if args['rules']:
@@ -60,9 +62,11 @@ def start_game():
             ai.end_epoch(score)
             saved = False
 
-            if ai.epoch % 1000 == 0: #changed by robert
+            all_scores.append(score) #robert
+            if ai.epoch % 5000 == 0: #changed by robert
                 ai.save()
                 saved = True
+                print (all_scores) #robert
                 break #added by robert
 
         if not saved:

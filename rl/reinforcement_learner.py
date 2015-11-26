@@ -161,7 +161,6 @@ class DeepQLearner (BaseLearner):
         super(DeepQLearner, self).__init__()
         self.discount_rate = 0.95
         self.network = neural_network.QNetwork()
-        self.last_forward_pass = 0.0
 
     def decide_action(self, new_state, possible_moves):
         if possible_moves is None:
@@ -180,16 +179,7 @@ class DeepQLearner (BaseLearner):
         best_move = possible_moves[list_Qscore.index(best_Qscore)]
 
         #update weights with backpropogation
-        #reward_to_use = 0.0
-        #if self.last_reward:
-        #    reward_to_use = self.last_reward 
-
-
-
-
         self.network.update_model(self.last_state, self.last_action, float(self.last_reward + self.discount_rate * best_Qscore))
-
-        #return best_move
 
         return possible_moves[self.explorer.decide_action(self.epoch, np.asarray(list_Qscore))]
 

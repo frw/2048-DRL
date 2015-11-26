@@ -165,7 +165,6 @@ class QNetwork(object):
         '''
         state_action_rep = np.zeros(20)
         state_action_rep[:16] = np.asarray(raw_state)
-        print raw_action
         state_action_rep[16 + raw_action] = 1.0
         return state_action_rep
 

@@ -219,6 +219,9 @@ class Game(object):
 
         self.save_best_score()
         print('You won!' if self.board.won() else 'Game Over')
+
+        print (self.score)
+
         return self.score
 
     def get_cell_str(self, x, y):
