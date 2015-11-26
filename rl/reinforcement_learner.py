@@ -201,6 +201,7 @@ class DeepQLearner (BaseLearner):
         super(DeepQLearner, self).__init__()
         self.discount_rate = 0.95
         self.network = QNetwork()
+        self.weights = []
 
     def decide_action(self, new_state, possible_moves):
         if possible_moves is None:
@@ -223,4 +224,10 @@ class DeepQLearner (BaseLearner):
 
         return possible_moves[self.explorer.decide_action(self.epoch, np.asarray(list_Qscore))]
 
+    def end_epoch(self, score):
+        super(DeepQLearner, self).end_epoch(score)
+
+        #save the network weights at this epoch
+        if self.epoch % 100 == 0:
+            self.weights.append(self.network.get_all_weights())
 
