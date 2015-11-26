@@ -37,9 +37,7 @@ def start_game():
 
     ###this section temporarily changed by robert
     all_scores = [] 
-    weight_tracker = [] 
-    other_weight_tracker = [] 
-    another_weight_tracker = []
+    weight_tracker = [[],[],[],[],[],[],[],[],[],[],[],[],[]]
     ######
 
     args = parse_cli_args()
@@ -69,16 +67,28 @@ def start_game():
 
             ###this section temporarily changed by robert
             all_scores.append(score) #robert
-            weight_tracker.append(float(ai.network.get_all_weights()[2][7]))
-            other_weight_tracker.append(ai.network.get_all_weights()[0][3,8])
-            another_weight_tracker.append(ai.network.get_all_weights()[1][2])
-            if ai.epoch % 500 == 0: #changed by robert
+            if ai.epoch % 100 == 0:
+                weight_tracker[0].append(ai.network.get_all_weights()[0][0,0])
+                weight_tracker[1].append(ai.network.get_all_weights()[0][16,0])
+                weight_tracker[2].append(ai.network.get_all_weights()[1][0])
+                weight_tracker[3].append(ai.network.get_all_weights()[2][0,0])
+                weight_tracker[4].append(ai.network.get_all_weights()[3][0])
+
+                weight_tracker[5].append(ai.network.get_all_weights()[0][0,1])
+                weight_tracker[6].append(ai.network.get_all_weights()[0][16,1])
+                weight_tracker[7].append(ai.network.get_all_weights()[1][1])
+                weight_tracker[8].append(ai.network.get_all_weights()[2][1,0])
+
+                weight_tracker[9].append(ai.network.get_all_weights()[0][10,0])
+                weight_tracker[10].append(ai.network.get_all_weights()[0][17,0])
+                weight_tracker[11].append(ai.network.get_all_weights()[0][10,1])
+                weight_tracker[12].append(ai.network.get_all_weights()[0][17,1])
+            if ai.epoch % 50000 == 0: #changed by robert
                 ai.save()
                 saved = True
                 print (all_scores) #robert
-                print (weight_tracker)
-                print (other_weight_tracker)
-                print (another_weight_tracker)
+                for i in range(len(weight_tracker)):
+                    print (weight_tracker[i])
                 break #added by robert
             #####
 
