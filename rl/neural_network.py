@@ -41,7 +41,7 @@ class HiddenLayer(object):
         #edited_dropout_factors = np.ones(n_in) - ((input[1]) * dropout_factors)
         #lin_output = (0.5 + 0.5 * input[1]) * T.dot((edited_dropout_factors * input[0]), self.W) + self.b
 
-        lin_output = T.dot(input[0], self.W) + self.b + (input[1] * 0.0)
+        lin_output = T.dot(input, self.W) + self.b
         self.output = (
             lin_output if activation is None
             else activation(lin_output)
@@ -65,7 +65,7 @@ class Architecture(object):
 
         self.hiddenLayer = HiddenLayer(
             rng=rng,
-            input=[input[0], input[1]],
+            input=input,
             n_in=n_in,
             n_out=n_hidden,
             activation=T.tanh
@@ -73,7 +73,7 @@ class Architecture(object):
 
         self.outputLayer = OutputLayer(
             rng=rng,
-            input=[self.hiddenLayer.output, input[1]],
+            input=self.hiddenLayer.output,
             n_in=n_hidden,
             n_out=n_out,
             activation=None
@@ -117,16 +117,16 @@ class QNetwork(object):
         # allocate symbolic variables for the data
         x = T.ivector('x')  
         y = T.iscalar('y') 
-        backprop_indic = T.iscalar('backprop_indic') 
 
         #not sure the np rng is legit, theano's isn't working
         rng = np.random.RandomState(None)
+        self.rng = rng
         #rng = RandomStreams(seed=234)
 
         # construct the neural network's Architecture
         architecture = Architecture(
             rng=rng,
-            input=[x, backprop_indic],
+            input=[x],
             n_in=self.num_inputs,
             n_hidden=self.n_hidden,
             n_out=self.num_outputs
@@ -155,7 +155,7 @@ class QNetwork(object):
 
         # backpropogation that also contains a forward pass
         self.train_model = theano.function(
-            inputs=[x, y, backprop_indic],
+            inputs=[x, y],
             outputs=[cost, architecture.get_result()],
             updates=updates,
             allow_input_downcast=True
@@ -163,7 +163,7 @@ class QNetwork(object):
 
         # forward pass
         self.run_model = theano.function(
-            inputs=[x, backprop_indic],
+            inputs=[x],
             outputs=architecture.get_result(),
             allow_input_downcast=True
         )
@@ -178,11 +178,15 @@ class QNetwork(object):
         state_action_rep = self.generate_network_inputs(current_state, current_action)
         #self.train_model(state_action_rep, target_value, 1.0)
 
+
         #extra test
-        #cost, result = self.train_model(state_action_rep, target_value, 1.0)
-        #return cost, result
+        cost, result = self.train_model(state_action_rep, target_value, 1.0)
+        return cost, result
 
     def use_model (self, current_state, current_action):
+
+        print self.rng.normal()
+
         state_action_rep = self.generate_network_inputs(current_state, current_action)
         return self.run_model(state_action_rep, 0.0)
 
@@ -207,17 +211,16 @@ class QNetwork(object):
 
 
 #Some haphazard extra code to test the neural network.
-#my_nn = QNetwork()
-'''
-for i in range(5000):
+my_nn = QNetwork()
+'''for i in range(5):
     hello, yo = my_nn.update_model((1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1), 2, 3)
     #test_array = np.ones(20)
     #hello = my_nn.use_model(test_array)
-    print hello
-    print yo
+    #print hello
+    #print yo
     hello = my_nn.use_model((1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1), 2)
-    print hello
-    ''''''print my_nn.get_all_weights()'''
+    #print hello
+    #print my_nn.get_all_weights()'''
 '''test_array = np.ones(20)
 tester = np.ones(20) * 2.0
 for i in range(5000):
@@ -227,7 +230,7 @@ for i in range(5000):
     h1, h2 = my_nn.update_model(tester,10.0)
     print h1
     print h2'''
-'''
+
 x_data3 = np.array([1,2,3,4,5])
 x_data2 = np.random.permutation(x_data3)
 x_data = np.tile(x_data2,(20,1))
@@ -235,8 +238,8 @@ y_data = x_data2 * 3.0 #+ (np.random.normal(5) * 0.01)
 print y_data
 for k in range(500000):
     for i in range(y_data.shape[0]):
-        next_step, n2 = my_nn.train_model(x_data[:,i],y_data[i], 1.0)
-        result = my_nn.run_model(x_data[:,i], 0.0)
+        next_step, n2 = my_nn.train_model(x_data[:,i],y_data[i])
+        result = my_nn.run_model(x_data[:,i])
         if k % 1000 == 0:
             print "cost:"
             print next_step
@@ -246,5 +249,5 @@ for k in range(500000):
             print y_data[i]
             print "try by forward:"
             print result
-'''
+
 
