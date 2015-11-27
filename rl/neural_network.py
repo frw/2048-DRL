@@ -41,7 +41,7 @@ class HiddenLayer(object):
         #edited_dropout_factors = np.ones(n_in) - ((input[1]) * dropout_factors)
         #lin_output = (0.5 + 0.5 * input[1]) * T.dot((edited_dropout_factors * input[0]), self.W) + self.b
 
-        lin_output = T.dot(input, self.W) + self.b
+        #lin_output = T.dot(input, self.W) + self.b
         self.output = (
             lin_output if activation is None
             else activation(lin_output)
@@ -120,7 +120,7 @@ class QNetwork(object):
 
         #not sure the np rng is legit, theano's isn't working
         rng = np.random.RandomState(None)
-        self.rng = rng
+        #srng = T.shared_randomstreams.RandomStreams(rng.randint(999999))
         #rng = RandomStreams(seed=234)
 
         # construct the neural network's Architecture
@@ -179,16 +179,15 @@ class QNetwork(object):
         #self.train_model(state_action_rep, target_value, 1.0)
 
 
+
         #extra test
-        cost, result = self.train_model(state_action_rep, target_value, 1.0)
+        cost, result = self.train_model(state_action_rep, target_value)
         return cost, result
 
     def use_model (self, current_state, current_action):
 
-        print self.rng.normal()
-
         state_action_rep = self.generate_network_inputs(current_state, current_action)
-        return self.run_model(state_action_rep, 0.0)
+        return self.run_model(state_action_rep)
 
     def generate_network_inputs (self, raw_state, raw_action):
         '''
