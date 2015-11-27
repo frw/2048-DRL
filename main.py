@@ -5,8 +5,7 @@ import argparse
 import sys
 
 from tui.game import Game
-from rl.reinforcement_learner import StandardQLearner
-from rl.reinforcement_learner import DeepQLearner
+from rl.reinforcement_learner import *
 
 
 def print_rules_and_exit():
@@ -55,7 +54,7 @@ def start_game():
             game = Game(**args)
             score = game.loop()
             if score is None:
-                break
+                return
 
             ai.end_epoch(score)
             saved = False

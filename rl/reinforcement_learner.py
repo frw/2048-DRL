@@ -95,6 +95,10 @@ class BaseLearner(object):
 
     def action_callback(self, raw_state, possible_moves):
         new_state = self.process_state(raw_state)
+
+        if possible_moves is None:
+            return None
+
         new_action = self.decide_action(new_state, possible_moves)
 
         self.last_state = new_state
@@ -191,8 +195,6 @@ class StandardQLearner(BaseLearner):
         return new_state
 
     def decide_action(self, new_state, possible_moves):
-        if possible_moves is None:
-            return None
         return possible_moves[self.explorer.decide_action(self.epoch, self.Q[new_state][possible_moves])]
 
 
@@ -204,22 +206,19 @@ class DeepQLearner (BaseLearner):
         self.weights = []
 
     def decide_action(self, new_state, possible_moves):
-        if possible_moves is None:
-            return None
-
         if not self.last_state:
            return npr.choice(possible_moves)
 
-        #compute Q-scores with forward propogation
+        # compute Q-scores with forward-propagation
         list_Qscore = []
-        for entry in range(len(possible_moves)):
-            list_Qscore.append(self.network.use_model(new_state, possible_moves[entry]))
+        for move in possible_moves:
+            list_Qscore.append(self.network.use_model(new_state, move))
 
         # get the best action & Q-score from current state
         best_Qscore = max(list_Qscore)
-        best_move = possible_moves[list_Qscore.index(best_Qscore)]
+        # best_move = possible_moves[list_Qscore.index(best_Qscore)]
 
-        #update weights with backpropogation
+        # update weights with back-propagation
         self.network.update_model(self.last_state, self.last_action, float(self.last_reward + self.discount_rate * best_Qscore))
 
         return possible_moves[self.explorer.decide_action(self.epoch, np.asarray(list_Qscore))]

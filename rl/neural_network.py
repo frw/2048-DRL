@@ -1,8 +1,3 @@
-import cPickle
-import gzip
-import os
-import sys
-
 import numpy as np
 
 import theano
