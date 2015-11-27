@@ -36,18 +36,11 @@ class HiddenLayer(object):
         self.W = W
         self.b = b
 
-        #retain_prob = 0.5
-        #dropout_factors = rng.randint(0,2, size=n_in)#rng.binomial(self.b.shape, p=retain_prob, dtype=theano.config.floatX)
-        #edited_dropout_factors = np.ones(n_in) - ((input[1]) * dropout_factors)
-        #lin_output = (0.5 + 0.5 * input[1]) * T.dot((edited_dropout_factors * input[0]), self.W) + self.b
-
         lin_output = T.dot(input, self.W) + self.b
         self.output = (
             lin_output if activation is None
             else activation(lin_output)
         )
-
-        #print dropout_factors
 
         self.params = [self.W, self.b]
 
@@ -118,10 +111,7 @@ class QNetwork(object):
         x = T.ivector('x')  
         y = T.iscalar('y') 
 
-        #not sure the np rng is legit, theano's isn't working
         rng = np.random.RandomState(None)
-        #srng = T.shared_randomstreams.RandomStreams(rng.randint(999999))
-        #rng = RandomStreams(seed=234)
 
         # construct the neural network's Architecture
         architecture = Architecture(
@@ -137,15 +127,6 @@ class QNetwork(object):
             + self.L1_reg * architecture.L1
             + self.L2_reg * architecture.L2_sqr
         )
-
-        # OLD GRADIENT DESCENT
-        #compute the gradient of cost with respect to all weights
-        #gparams = [T.grad(cost, wrt=param) for param in architecture.params]
-        # apply gradient descent
-        #updates = [
-        #    (param, param - self.learning_rate * gparam)
-        #    for param, gparam in zip(architecture.params, gparams)
-        #]
 
         #stochastic gradient descent with adaptive learning using lasagne--take your pick
         #updates_sgd = sgd(cost, architecture.params, learning_rate=self.learning_rate)
@@ -176,13 +157,11 @@ class QNetwork(object):
 
     def update_model (self, current_state, current_action, target_value):
         state_action_rep = self.generate_network_inputs(current_state, current_action)
-        #self.train_model(state_action_rep, target_value, 1.0)
-
-
+        self.train_model(state_action_rep, target_value)
 
         #extra test
-        cost, result = self.train_model(state_action_rep, target_value)
-        return cost, result
+        #cost, result = self.train_model(state_action_rep, target_value)
+        #return cost, result
 
     def use_model (self, current_state, current_action):
 
@@ -210,7 +189,7 @@ class QNetwork(object):
 
 
 #Some haphazard extra code to test the neural network.
-my_nn = QNetwork()
+#my_nn = QNetwork()
 '''for i in range(5):
     hello, yo = my_nn.update_model((1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1), 2, 3)
     #test_array = np.ones(20)
@@ -248,7 +227,7 @@ for k in range(500000):
             print y_data[i]
             print "try by forward:"
             print result
-'''
+''''''
 x_data3 = np.array([1,2,3,4,5])
 x_data2 = np.random.permutation(x_data3)
 x_data = np.tile(x_data2,(16,1))
@@ -266,5 +245,4 @@ for k in range(500000):
             print "actual:"
             print y_data[i]
             print "try by forward:"
-            print result
-
+            print result'''
