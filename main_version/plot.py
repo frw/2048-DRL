@@ -1,9 +1,12 @@
+################################################
+THEFILENAME = 'baseline_775_test.pkl.gz'########
+################################################
+
 import numpy as np
 import pylab as pl
 import cPickle as pickle
 import gzip
 import os
-
 
 def plot_scores(scores, run_name):
     indices = np.arange(1, len(scores) + 1)
@@ -146,18 +149,18 @@ def graph(learner, run_name):
     #Layer #1 Inter-node weights, Layer #1 Bias weights, Layer #2 Inter-node weights, Layer #2 Bias weights, etc.
 
     #general_weight_list = [[0,0,0], [0,0,1], [0,10,0], [0,10,1], [0,16,0], [0,16,1], [0,17,0], [0,17,1], [2,0,0], [2,1,0]]
-    #plot_select_weights(learner.weights, 100, general_weight_list, run_name)
+    #plot_select_weights(learner.weights, 1000, general_weight_list, run_name)
 
     #bias_weight_list = [[1,0], [1,1], [3,0]]
-    #plot_select_bias_weights(learner.weights, 100, bias_weight_list, run_name)
+    #plot_select_bias_weights(learner.weights, 1000, bias_weight_list, run_name)
 
-    plot_random_weights_true(learner.weights,10, 100, 0, run_name)
+    plot_random_weights_true(learner.weights,10, 1000, 0, run_name)
 
-    plot_random_weights_nice(learner.weights,10, 100, 0, run_name)
+    plot_random_weights_nice(learner.weights,10, 1000, 0, run_name)
 
-    plot_random_weights_true(learner.weights,10, 100, 1, run_name)
+    plot_random_weights_true(learner.weights,10, 1000, 1, run_name)
 
-    plot_random_weights_nice(learner.weights,10, 100, 1, run_name)
+    plot_random_weights_nice(learner.weights,10, 1000, 1, run_name)
 
 def get_results(filename):
     if os.path.isfile(filename):
@@ -169,4 +172,4 @@ def get_results(filename):
     else:
         print('Cannot find file!')
 
-get_results('Functional_Baseline_After_10000.pkl.gz')
+get_results(THEFILENAME)

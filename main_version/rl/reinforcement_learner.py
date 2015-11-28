@@ -227,6 +227,6 @@ class DeepQLearner (BaseLearner):
         super(DeepQLearner, self).end_epoch(score)
 
         #save the network weights at this epoch
-        if self.epoch % 100 == 0:
+        if self.epoch % 1000 == 0:
             self.weights.append(self.network.get_all_weights())
 
