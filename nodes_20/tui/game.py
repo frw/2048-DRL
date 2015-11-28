@@ -61,7 +61,7 @@ class Game(object):
         },
     }
 
-    SCORES_FILE = '%s/.term2048.scores' % os.path.expanduser('~')
+    SCORES_FILE = '.highscore'
 
     def __init__(self, scores_file=SCORES_FILE, colors=COLORS,
                  clear_screen=True, mode=None, azmode=False,
