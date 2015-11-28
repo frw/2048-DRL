@@ -131,7 +131,7 @@ class QNetwork(object):
         
         # old version of stochastic gradient descent
         gparams = [T.grad(cost, wrt=param) for param in architecture.params]
-        updates = [(param, param - self.learning_rate * gparam) for param, gparam in zip(classifier.params, gparams)]
+        updates = [(param, param - self.learning_rate * gparam) for param, gparam in zip(architectiure.params, gparams)]
 
         #stochastic gradient descent with adaptive learning using lasagne--take your pick
         #updates_sgd = sgd(cost, architecture.params, learning_rate=self.learning_rate)
