@@ -166,7 +166,7 @@ class QNetwork(object):
         )
         
         #prepare for PCA
-        num_samples = 1000000
+        num_samples = 100000
         num_features = 256
 
         the_dist_data = self.make_distribution_data(num_samples)

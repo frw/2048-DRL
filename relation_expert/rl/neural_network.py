@@ -8,12 +8,10 @@ from lasagne.updates import sgd, apply_momentum, adadelta, adam
 
 from theano.tensor.shared_randomstreams import RandomStreams
 
-from sklearn.decomposition import PCA
-
 class HiddenLayer(object):
     def __init__(self, rng, input, n_in, n_out, W=None, b=None,
                  activation=T.tanh):
-        self.input = input
+        self.input = input[0]
 
         # initialize weights into this layer
         if W is None:
@@ -38,7 +36,7 @@ class HiddenLayer(object):
         self.W = W
         self.b = b
 
-        lin_output = T.dot(input, self.W) + self.b
+        lin_output = T.dot(self.input, self.W) + self.b
         self.output = (
             lin_output if activation is None
             else activation(lin_output)
@@ -46,7 +44,103 @@ class HiddenLayer(object):
 
         self.params = [self.W, self.b]
 
-class OutputLayer(HiddenLayer):
+class OutputLayer(object):
+
+    def __init__(self, rng, input, n_in, n_out, W=None, b=None,
+                 activation=T.tanh):
+        self.input = input
+
+
+        #true_input = np.zeros(50)
+
+        #true_input = np.concatenate([np.asarray(input[0]), np.asarray(input[1]), np.asarray(input[2])])
+        #hello = T.stack(input[0], input[0])
+        #true_input = T.concatenate([input[0], input[1], input[2]], axis=0)
+
+        #assert(type(np.asarray(input[0])) == type(true_input))
+
+        #true_input[0] = float(np.asarray(input[0]))
+
+        # initialize weights into this layer
+        #if W1 is None:
+        W1_values = np.asarray(
+            rng.uniform(
+                size=(n_in, n_out),
+                low=-np.sqrt(6. / (9)),
+                high=np.sqrt(6. / (9)),
+            ),
+            dtype=theano.config.floatX
+        )
+        if activation == theano.tensor.nnet.sigmoid:
+            W1_values *= 4
+
+        W1 = theano.shared(value=W1_values, name='W1', borrow=True)
+
+        #if W2 is None:
+        W2_values = np.asarray(
+            rng.uniform(
+                size=(n_in, n_out),
+                low=-np.sqrt(6. / (5)),
+                high=np.sqrt(6. / (5)),
+            ),
+            dtype=theano.config.floatX
+        )
+        if activation == theano.tensor.nnet.sigmoid:
+            W2_values *= 4
+
+        W2 = theano.shared(value=W2_values, name='W2', borrow=True)
+
+        #if W3 is None:
+        W3_values = np.asarray(
+            rng.uniform(
+                size=(n_in, n_out),
+                low=-np.sqrt(6. / (39)),
+                high=np.sqrt(6. / (39)),
+            ),
+            dtype=theano.config.floatX
+        )
+        if activation == theano.tensor.nnet.sigmoid:
+            W3_values *= 4
+
+        W3 = theano.shared(value=W3_values, name='W3', borrow=True)
+
+        if W is None:
+            W_values = np.asarray(
+                rng.uniform(
+                    size=(n_in, n_out),
+                    low=-np.sqrt(6. / (n_in + n_out)),
+                    high=np.sqrt(6. / (n_in + n_out)),
+                ),
+                dtype=theano.config.floatX
+            )
+            if activation == theano.tensor.nnet.sigmoid:
+                W_values *= 4
+
+            W = theano.shared(value=W_values, name='W', borrow=True)
+
+        # initialize bias term weights into this layer
+        if b is None:
+            b_values = np.zeros((n_out,), dtype=theano.config.floatX)
+            b = theano.shared(value=b_values, name='b', borrow=True)
+
+        
+        self.W1 = W1
+        self.W2 = W2
+        self.W3 = W3
+        self.W = W
+        self.b = b
+
+        lin_output = T.dot(input[0], self.W1)
+        lin_output2 = T.dot(input[1], self.W2)
+        lin_output3 = T.dot(input[2], self.W3)
+        lin_output = T.dot(input, self.W) + self.b
+        #lin_output = lin_output + lin_output2 + lin_output3 + self.b
+        self.output = (
+            lin_output if activation is None
+            else activation(lin_output)
+        )
+
+        self.params = [self.W, self.b]
 
     def error_function(self, y):
         return T.mean((self.output - y)**2.0)
@@ -60,37 +154,54 @@ class Architecture(object):
 
         self.hiddenLayer = HiddenLayer(
             rng=rng,
-            input=input,
-            n_in=n_in,
-            n_out=n_hidden,
+            input=input[:57],
+            n_in=57,
+            n_out=8,
+            activation=T.tanh
+        )
+
+        self.hiddenLayer2 = HiddenLayer(
+            rng=rng,
+            input=input[57:81],
+            n_in=24,
+            n_out=4,
+            activation=T.tanh
+        )
+
+        self.hiddenLayer3 = HiddenLayer(
+            rng=rng,
+            input=input[81:],
+            n_in=256,
+            n_out=38,
             activation=T.tanh
         )
 
         self.outputLayer = OutputLayer(
             rng=rng,
-            input=self.hiddenLayer.output,
+            #input=(T.concatenate([self.hiddenLayer.output, self.hiddenLayer2.output, self.hiddenLayer3.output], axis=1)),
+            input=[self.hiddenLayer.output, self.hiddenLayer2.output, self.hiddenLayer3.output],
             n_in=n_hidden,
             n_out=n_out,
             activation=None
         )
 
         # L1 norm regularization
-        self.L1 = (
-            abs(self.hiddenLayer.W).sum()
-            + abs(self.outputLayer.W).sum()
+        self.L1 = (0.0
+            #abs(self.hiddenLayer.W).sum()
+            #+ abs(self.outputLayer.W).sum()
         )
 
         # square of L2 norm regularization
-        self.L2_sqr = (
-            (self.hiddenLayer.W ** 2).sum()
-            + (self.outputLayer.W ** 2).sum()
+        self.L2_sqr = (0.0
+            #(self.hiddenLayer.W ** 2).sum()
+            #+ (self.outputLayer.W ** 2).sum()
         )
 
         self.error_function = (
             self.outputLayer.error_function
         )
 
-        self.params = self.hiddenLayer.params + self.outputLayer.params
+        self.params = self.hiddenLayer.params + self.hiddenLayer2.params + self.hiddenLayer3.params + self.outputLayer.params
 
         self.input = input
 
@@ -100,15 +211,12 @@ class Architecture(object):
 class QNetwork(object):
 
     def __init__ (self):
-
-        global pca
-
         self.learning_rate = 0.001
         self.L1_reg = 0.0000
         self.L2_reg = 0.0001
         self.batch_size = 20
         self.n_hidden = 50
-        self.num_inputs = 16
+        self.num_inputs = 337
         self.num_outputs = 1
         self.momentum_coeff = 0.9
 
@@ -164,41 +272,7 @@ class QNetwork(object):
             outputs=architecture.params,
             allow_input_downcast=True
         )
-        
-        #prepare for PCA
-        num_samples = 100000
-        num_features = 256
 
-        the_dist_data = self.make_distribution_data(num_samples)
-        train_data = self.transform_to_feature_matrix(the_dist_data, num_samples, num_features)
-
-        pca = PCA(n_components=16)
-
-        pca.fit(train_data)
-
-        #self.dim_reducer = pca
-    
-    def random_tile_generator(self):
-        tile_value = 0
-        while True:
-            if np.random.randint(0,2) == 0:
-                return tile_value
-            else:
-                tile_value = tile_value + 1
-
-    def make_distribution_data(self,size):
-        dist_data = np.zeros((size,16))
-        for i in range(size):
-            for j in range(16):
-                dist_data[i,j] = self.random_tile_generator()
-        return dist_data
-
-    def transform_to_feature_matrix(self,the_dist_data, num_samples, num_features):
-        transformed_data = np.zeros((num_samples,num_features))
-        for i in range(num_samples):
-            transformed_data[i,:] = self.generate_raw_network_inputs(tuple(the_dist_data[i,:]))
-        return transformed_data
-    
     def update_model (self, current_state, target_value):
         state_action_rep = self.generate_network_inputs(current_state)
         self.train_model(state_action_rep, target_value)
@@ -212,41 +286,48 @@ class QNetwork(object):
         state_action_rep = self.generate_network_inputs(current_state)
         return self.run_model(state_action_rep)
 
-    def generate_raw_network_inputs (self, raw_state):
-        '''
-        Transforms state/action pair into input features for the network.
-        '''
-
-
-        state_action_rep = np.zeros(256)
-
-        for i in range(16):
-            nonzero_index = raw_state[i]
-            if nonzero_index > 15:
-                nonzero_index = 15
-            state_action_rep[((i*16) + nonzero_index)] = 1.0
-
-        return state_action_rep
-
-
     def generate_network_inputs (self, raw_state):
         '''
         Transforms state/action pair into input features for the network.
         '''
 
-        global pca
+        state_action_rep = np.zeros((57 + 24 + 256))
 
-        state_action_rep = np.zeros(256)
+
+        #original features
+        state_action_rep[:16] = np.asarray(raw_state)
+
+        #tuple sums
+        two_tuples = [[0,1],[1,2],[2,3],[4,5],[5,6],[6,7],[8,9],[9,10],[10,11],[12,13],[13,14],[14,15],[0,4],[4,8],[8,12],[1,5],[5,9],[9,13],[2,6],[6,10],[10,14],[3,7],[7,11],[11,15]]
+        assert(len(two_tuples) == 24)
+
+        for i in range(24):
+            state_action_rep[i + 16] = raw_state[two_tuples[i][0]] + raw_state[two_tuples[i][1]]
+
+        four_tuples = [[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15],[0,4,8,12],[1,5,9,13],[2,6,10,14],[3,7,11,15],[0,1,4,5],[1,2,5,6],[2,3,6,7],[4,5,8,9],[5,6,9,10],[6,7,10,11],[8,9,12,13],[9,10,13,14],[10,11,14,15]]
+        assert(len(four_tuples) == 17)
+
+        for i in range(17):
+            state_action_rep[i + 40] = raw_state[four_tuples[i][0]] + raw_state[four_tuples[i][1]] + raw_state[four_tuples[i][2]] + raw_state[four_tuples[i][3]]
+
+        #matching tuples
+
+        two_tuples = [[0,1],[1,2],[2,3],[4,5],[5,6],[6,7],[8,9],[9,10],[10,11],[12,13],[13,14],[14,15],[0,4],[4,8],[8,12],[1,5],[5,9],[9,13],[2,6],[6,10],[10,14],[3,7],[7,11],[11,15]]
+        assert(len(two_tuples) == 24)
+
+        for i in range(24):
+            if raw_state[two_tuples[i][0]] == raw_state[two_tuples[i][1]]:
+                state_action_rep[i+57] = 1.0
+
+        #binary state rep
 
         for i in range(16):
             nonzero_index = raw_state[i]
             if nonzero_index > 15:
                 nonzero_index = 15
-            state_action_rep[((i*16) + nonzero_index)] = 1.0
+            state_action_rep[((i*16) + nonzero_index) + 81] = 1.0
 
-        final_result = pca.transform(np.reshape(state_action_rep,(1,256)))
-
-        return final_result.flatten()
+        return state_action_rep
 
     def get_all_weights (self):
         '''
