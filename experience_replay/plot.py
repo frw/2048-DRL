@@ -1,5 +1,5 @@
 ################################################
-THEFILENAME = 'baseline_775_test.pkl.gz'########
+THEFILENAME = 'experience_replay.pkl.gz'########
 ################################################
 
 import numpy as np
@@ -8,10 +8,12 @@ import cPickle as pickle
 import gzip
 import os
 
+import experience_database
+
 def plot_scores(scores, run_name):
     indices = np.arange(1, len(scores) + 1)
     moving_average = np.convolve(scores, np.repeat(1.0, 100) / 100, 'valid')
-    print moving_average[-1]
+    #print moving_average[-1]
 
     pl.plot(indices, scores, '-')
     pl.plot(indices[99:], moving_average, 'r--')
@@ -23,8 +25,8 @@ def plot_scores(scores, run_name):
 def scoring_statistics(scores):
     print "Mean score across last 1000 iterations:"
     print np.mean(scores[-1000:])
-    print "Mean score across all iterations:"
-    print np.mean(scores)
+    #print "Mean score across all iterations:"
+    #print np.mean(scores)
     print "Percent over 1000 in last 1000 iterations:"
     print sum([1 if score > 1000 else 0 for score in scores[-1000:]]) / 10.0
 
@@ -140,6 +142,11 @@ def plot_random_weights_nice(weights, number_per_layer, saving_multiple, which_l
     pl.show()
 
 def graph(learner, run_name):
+
+    #keep only first 10000 results
+    learner.scores = learner.scores[:10000]
+    learner.weights = learner.weights[:10000]
+
     scoring_statistics(learner.scores)
 
     plot_scores(learner.scores, run_name)
@@ -154,13 +161,17 @@ def graph(learner, run_name):
     #bias_weight_list = [[1,0], [1,1], [3,0]]
     #plot_select_bias_weights(learner.weights, 1000, bias_weight_list, run_name)
 
-    plot_random_weights_true(learner.weights,10, 1000, 0, run_name)
+    #plot_random_weights_true(learner.weights,20, 1000, 0, run_name)
 
-    plot_random_weights_nice(learner.weights,10, 1000, 0, run_name)
+    #plot_random_weights_nice(learner.weights,20, 1000, 0, run_name)
 
-    plot_random_weights_true(learner.weights,10, 1000, 1, run_name)
+    #plot_random_weights_true(learner.weights,20, 1000, 1, run_name)
 
-    plot_random_weights_nice(learner.weights,10, 1000, 1, run_name)
+    #plot_random_weights_nice(learner.weights,20, 1000, 1, run_name)
+
+    #plot_random_weights_true(learner.weights,20, 1000, None, run_name)
+
+    #plot_random_weights_nice(learner.weights,20, 1000, None, run_name)
 
 def get_results(filename):
     if os.path.isfile(filename):
