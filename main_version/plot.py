@@ -1,5 +1,5 @@
 ################################################
-THEFILENAME = 'experience_replay.pkl.gz'########
+THEFILENAME = 'no_actions_tuple_match.pkl.gz'########
 ################################################
 
 import numpy as np
@@ -131,7 +131,8 @@ def plot_random_weights_nice(weights, number_per_layer, saving_multiple, which_l
                 formatted_weights.append(weights[i][layer*2][dim1_samples[a],dim2_samples[a]])
             max_value = max(formatted_weights)
             min_value = min(formatted_weights)
-            scaled_weights = formatted_weights / (max(abs(max_value),abs(min_value)))
+            avg_value = 0.5*max_value + 0.5*min_value
+            scaled_weights = 2.0 * (formatted_weights - avg_value) / (max_value - min_value)
             pl.plot(indices, scaled_weights)
 
     pl.title("Random Set of Scaled Weight Values Over Time: " + run_name)
@@ -145,9 +146,9 @@ def graph(learner, run_name):
     learner.scores = learner.scores[:10000]
     learner.weights = learner.weights[:10000]
 
-    scoring_statistics(learner.scores)
+    #scoring_statistics(learner.scores)
 
-    plot_scores(learner.scores, run_name)
+    #plot_scores(learner.scores, run_name)
 
     #How learner.weights is formatted: Top level is a list across iterations. Each element of this list is a list of numpy arrays.
     #The numpy arrays contain the individual weight values for different layers. The order of the numpy arrays is:
@@ -169,7 +170,7 @@ def graph(learner, run_name):
 
     #plot_random_weights_true(learner.weights,20, 1000, None, run_name)
 
-    #plot_random_weights_nice(learner.weights,20, 1000, None, run_name)
+    plot_random_weights_nice(learner.weights,20, 1000, None, run_name)
 
 def get_results(filename):
     if os.path.isfile(filename):
