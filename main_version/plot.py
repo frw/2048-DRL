@@ -1,5 +1,5 @@
 ################################################
-THEFILENAME = 'no_actions_tuple_match.pkl.gz'########
+THEFILENAME = 'baseline3.pkl.gz'########
 ################################################
 
 import numpy as np
@@ -13,9 +13,13 @@ def plot_scores(scores, run_name):
     moving_average = np.convolve(scores, np.repeat(1.0, 100) / 100, 'valid')
     #print moving_average[-1]
 
-    pl.plot(indices, scores, '-')
+    pl.figure(figsize=(12,5))
+    pl.plot(indices, scores, 'b-', alpha=0.3)
     pl.plot(indices[99:], moving_average, 'r--')
-    pl.title("Game Scores Over Time: " + run_name)
+    #pl.title("Game Scores Over Time: " + run_name)
+
+    #pl.title("Game Scores Over Time: Altered Input Features (Binary Indicators of Tile Pairs with Matching Values)")
+
     pl.ylabel("Score")
     pl.xlabel("Iteration")
     pl.show()
@@ -148,7 +152,7 @@ def graph(learner, run_name):
 
     #scoring_statistics(learner.scores)
 
-    #plot_scores(learner.scores, run_name)
+    plot_scores(learner.scores, run_name)
 
     #How learner.weights is formatted: Top level is a list across iterations. Each element of this list is a list of numpy arrays.
     #The numpy arrays contain the individual weight values for different layers. The order of the numpy arrays is:
@@ -170,7 +174,7 @@ def graph(learner, run_name):
 
     #plot_random_weights_true(learner.weights,20, 1000, None, run_name)
 
-    plot_random_weights_nice(learner.weights,20, 1000, None, run_name)
+    #plot_random_weights_nice(learner.weights,20, 1000, None, run_name)
 
 def get_results(filename):
     if os.path.isfile(filename):
@@ -181,5 +185,11 @@ def get_results(filename):
 
     else:
         print('Cannot find file!')
+
+
+FILENAMES = ['baseline1.pkl.gz', 'baseline2.pkl.gz', 'baseline3.pkl.gz', 'baseline4.pkl.gz', 'baseline5.pkl.gz', 'baseline6.pkl.gz', 'baseline7.pkl.gz', 'baseline8.pkl.gz' ,'baseline9.pkl.gz', 'baseline10.pkl.gz', 'baseline11.pkl.gz', 'baseline12.pkl.gz', 'baseline13.pkl.gz', 'baseline14.pkl.gz', 'baseline15.pkl.gz', 'baseline16.pkl.gz', 'baseline17.pkl.gz']
+
+for afile in FILENAMES:
+    get_results(afile)
 
 get_results(THEFILENAME)
