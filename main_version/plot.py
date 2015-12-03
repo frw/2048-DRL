@@ -1,5 +1,5 @@
 ################################################
-THEFILENAME = 'baseline3.pkl.gz'########
+THEFILENAME = 'hybrid_converge1.pkl.gz'########
 ################################################
 
 import numpy as np
@@ -150,7 +150,7 @@ def graph(learner, run_name):
     learner.scores = learner.scores[:10000]
     learner.weights = learner.weights[:10000]
 
-    #scoring_statistics(learner.scores)
+    scoring_statistics(learner.scores)
 
     plot_scores(learner.scores, run_name)
 
@@ -187,9 +187,9 @@ def get_results(filename):
         print('Cannot find file!')
 
 
-FILENAMES = ['baseline1.pkl.gz', 'baseline2.pkl.gz', 'baseline3.pkl.gz', 'baseline4.pkl.gz', 'baseline5.pkl.gz', 'baseline6.pkl.gz', 'baseline7.pkl.gz', 'baseline8.pkl.gz' ,'baseline9.pkl.gz', 'baseline10.pkl.gz', 'baseline11.pkl.gz', 'baseline12.pkl.gz', 'baseline13.pkl.gz', 'baseline14.pkl.gz', 'baseline15.pkl.gz', 'baseline16.pkl.gz', 'baseline17.pkl.gz']
+#FILENAMES = ['baseline1.pkl.gz', 'baseline2.pkl.gz', 'baseline3.pkl.gz', 'baseline4.pkl.gz', 'baseline5.pkl.gz', 'baseline6.pkl.gz', 'baseline7.pkl.gz', 'baseline8.pkl.gz' ,'baseline9.pkl.gz', 'baseline10.pkl.gz', 'baseline11.pkl.gz', 'baseline12.pkl.gz', 'baseline13.pkl.gz', 'baseline14.pkl.gz', 'baseline15.pkl.gz', 'baseline16.pkl.gz', 'baseline17.pkl.gz']
 
-for afile in FILENAMES:
-    get_results(afile)
+#for afile in FILENAMES:
+#    get_results(afile)
 
 get_results(THEFILENAME)

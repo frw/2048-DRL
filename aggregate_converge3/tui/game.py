@@ -202,6 +202,22 @@ class Game(object):
                     while m is None:
                         m = self.read_move()
 
+
+                bonus = 1.0
+
+                max_val = 0
+                for i in range(4):
+                    for j in range(4):
+                        if self.board.cells[i][j] > max_val:
+                            max_val = self.board.cells[i][j]
+
+                if (self.board.cells[0][0] == max_val or self.board.cells[0][3] == max_val or self.board.cells[3][0] == max_val or self.board.cells[3][3] == max_val):
+                    bonus = 2.0
+                elif (self.board.cells[1][0] == max_val or self.board.cells[2][0] == max_val or self.board.cells[0][1] == max_val or self.board.cells[0][2] == max_val):
+                    bonus = 1.5
+                elif (self.board.cells[1][3] == max_val or self.board.cells[2][3] == max_val or self.board.cells[3][1] == max_val or self.board.cells[3][2] == max_val):    
+                    bonus = 1.5
+
                 score_inc = self.board.move(m)
                 self.increment_score(score_inc)
                 change = (score_inc, move_str.get(m))
