@@ -5,6 +5,7 @@ Final Project for Computer Science 281: Advanced Machine Learning, in Fall 2015 
 Team Members:
 
 Frederick Widjaja
+
 Robert Chen
 
 Abstract:
@@ -14,5 +15,7 @@ Computational issues arise in reinforcement learning problems when the relevant 
 Deliverables:
 
 Code on Github
+
 Research Paper
+
 Presentation Poster 
