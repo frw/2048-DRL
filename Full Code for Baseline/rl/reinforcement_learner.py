@@ -1,3 +1,10 @@
+'''
+Implements reinforcement learning framework for Deep Q-Learning.
+Also ncludes classes for the Greedy algorithm and Standard (not Deep)
+Q-Learning, as well as Epsilon-Greedy and Boltzmann methods of 
+setting exploration vs. exploitation tradeoff.
+'''
+
 import cPickle as pickle
 import gzip
 import os
@@ -11,6 +18,9 @@ from tui.board import Board
 ACTIONS = [Board.UP, Board.DOWN, Board.LEFT, Board.RIGHT]
 
 def draw_greedy(values):
+    '''
+    Greedy approach, given the Q-values for different actions.
+    '''
     m = np.max(values)
     best = []
     for i, v in enumerate(values):
@@ -25,6 +35,10 @@ class BoltzmannExplorer(object):
         self.decay = decay
 
     def decide_action(self, epoch, values):
+    '''
+    Boltzmann method for deciding on action given Q-values
+    and the current game epoch.
+    '''
         if self.tau == 0:
             return draw_greedy(values)
         else:
@@ -65,6 +79,9 @@ class EpsilonGreedyExplorer(object):
         self.decay = decay
 
     def decide_action(self, epoch, values):
+        '''
+        Epsilon-Greedy method for deciding on action given Q-values.
+        '''
         try:
             if npr.random() < self.epsilon:
                 return npr.randint(len(values))
@@ -98,9 +115,7 @@ class BaseLearner(object):
 
         if possible_moves is None:
             return None
-
         new_action = self.decide_action(new_state, possible_moves)
-
         self.last_state = new_state
         self.last_action = new_action
 
@@ -216,7 +231,6 @@ class DeepQLearner (BaseLearner):
 
         # get the best action & Q-score from current state
         best_Qscore = max(list_Qscore)
-        # best_move = possible_moves[list_Qscore.index(best_Qscore)]
 
         # update weights with back-propagation
         self.network.update_model(self.last_state, self.last_action, float(self.last_reward + self.discount_rate * best_Qscore))

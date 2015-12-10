@@ -1,4 +1,7 @@
-# -*- coding: UTF-8 -*-
+'''
+Board class, for all functionality related to the current state of the 2048 game board.
+'''
+
 import random
 
 # PY3 compat

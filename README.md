@@ -18,4 +18,6 @@ Code on Github
 
 Research Paper
 
-Presentation Poster 
+Presentation Poster
+
+Note: "Full Code for Baseline" folder code for the baseline Deep Q-Learning method. Slight variations to this code were made to test the different experimental approaches; these folders can be found under the "Other" folder. Only the baseline method under "Full Code for Baseline" is fully finalized and extensively commented, although the other folders are also readable and commented. We suggest only perusing the baseline code, given the other several dozen versions of the code contain only minor changes from it.

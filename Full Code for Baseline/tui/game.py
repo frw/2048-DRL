@@ -1,4 +1,7 @@
-# -*- coding: UTF-8 -*-
+'''
+Game class, for all aspects related to an instance of playing the 2048 Game.
+'''
+
 from __future__ import print_function
 
 import atexit
@@ -18,7 +21,6 @@ class Game(object):
     """
     A 2048 game
     """
-
     __dirs = {
         keypress.UP:      Board.UP,
         keypress.DOWN:    Board.DOWN,
@@ -49,7 +51,6 @@ class Game(object):
         131072: Fore.MAGENTA,
     }
 
-    # see Game#adjustColors
     # these are color replacements for various modes
     __color_modes = {
         'dark': {

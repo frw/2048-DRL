@@ -1,4 +1,8 @@
-# -*- coding: UTF-8 -*-
+'''
+Logic to start games and record scores. Gameplay can be with a human player
+(using the keyboard to make moves), or with the Deep Q-Learner AI.
+'''
+
 from __future__ import print_function
 
 import argparse
@@ -16,7 +20,7 @@ their value! Try to reach 2048 to win.""")
 
 
 def parse_cli_args():
-    """parse args from the CLI and return a dict"""
+    """Parses args from the CLI and return a dict"""
     parser = argparse.ArgumentParser(description='2048 in your terminal')
     parser.add_argument('--mode', dest='mode', type=str,
                         default=None, help='Color mode (dark or light)')
@@ -33,7 +37,6 @@ def start_game():
     Start a new game. If ``debug`` is set to ``True``, the game object is
     returned and the game loop isn't fired.
     """
-
     args = parse_cli_args()
 
     if args['rules']:

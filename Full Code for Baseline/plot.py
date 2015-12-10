@@ -1,5 +1,10 @@
+'''
+Plot graphs and compute statistics using pkl.gz files generated from 2048 AI gameplay.
+Files contain scores and network weights over time.
+'''
+
 ################################################
-THEFILENAME = 'agg_converge2.pkl.gz'########
+THEFILENAME = 'filename.here.pkl.gz'
 ################################################
 
 import numpy as np
@@ -9,26 +14,29 @@ import gzip
 import os
 
 def plot_scores(scores, run_name):
+    '''
+    Plots game scores across iterations. Also includes the running average of the
+    last 100 games in the plot.
+    '''
     indices = np.arange(1, len(scores) + 1)
     moving_average = np.convolve(scores, np.repeat(1.0, 100) / 100, 'valid')
-    #print moving_average[-1]
 
     pl.figure(figsize=(12,5))
     pl.plot(indices, scores, 'b-', alpha=0.3)
     pl.plot(indices[99:], moving_average, 'r--')
-    #pl.title("Game Scores Over Time: " + run_name)
-
-    pl.title("Game Scores Over Time: Corner Bias", fontdict={'fontsize':20})
+    pl.title("Game Scores Over Time: " + run_name)
 
     pl.ylabel("Score")
     pl.xlabel("Iteration")
     pl.show()
 
+
 def scoring_statistics(scores):
+    '''
+    Computes statistics on the game scores.
+    '''
     print "Mean score across last 1000 iterations:"
     print np.mean(scores[-1000:])
-    #print "Mean score across all iterations:"
-    #print np.mean(scores)
     print "Percent over 1000 in last 1000 iterations:"
     print sum([1 if score > 1000 else 0 for score in scores[-1000:]]) / 10.0
 
@@ -39,9 +47,6 @@ def plot_select_weights(weights, saving_multiple, weight_list, run_name):
     Note: this function does not plot bias weights.
     '''
     indices = np.arange(1, len(weights) + 1) * saving_multiple
-
-    #weight_list properties:
-    #1st element = which layer, 2nd element = preceding layer node #, 3rd element = next layer node #
 
     for elem in weight_list:
         pl.figure()
@@ -54,15 +59,12 @@ def plot_select_weights(weights, saving_multiple, weight_list, run_name):
         pl.xlabel("Iteration")
         pl.show()
 
+
 def plot_select_bias_weights(weights, saving_multiple, weight_list, run_name):
     '''
     Plots weights over time for specified set of weights, each in a separate plot.
     Note: this function only plots bias weights.
     '''
-
-    #weight_list properties:
-    #1st element = which layer, 2nd element = next layer node #
-
     indices = np.arange(1, len(weights) + 1) * saving_multiple
 
     for elem in weight_list:
@@ -80,7 +82,8 @@ def plot_random_weights_true(weights, number_per_layer, saving_multiple, which_l
     '''
     Randomly draws weights according to number_per_layer and plots each over time, all in the same plot.
     Note: only draws from general inter-node weights, not bias weights.
-    which_layer allows for all weights to be specific layer or in all layers
+    which_layer allows for all weights to be specific layer (if number specified) 
+    or in all layers (if None).
     '''
     pl.figure()
     indices = np.arange(1, len(weights) + 1) * saving_multiple
@@ -113,7 +116,7 @@ def plot_random_weights_nice(weights, number_per_layer, saving_multiple, which_l
     Randomly draws weights according to number_per_layer and plots each over time, all in the same plot.
     Scales weight values to be between -1 and 1 on the y-axis, to make graph easier to read.
     Note: only draws from general inter-node weights, not bias weights.
-    which_layer allows for all weights to be specific layer or in all layers
+    which_layer allows for all weights to be specific layer (if number specified) or in all layers (if None).
     '''
     pl.figure()
     indices = np.arange(1, len(weights) + 1) * saving_multiple
@@ -145,51 +148,39 @@ def plot_random_weights_nice(weights, number_per_layer, saving_multiple, which_l
     pl.show()
 
 def graph(learner, run_name):
-
+    '''
+    Produces graphs of your choice by calling relevant graphing functions.
+    '''
     #keep only first 10000 results
     learner.scores = learner.scores[:10000]
     learner.weights = learner.weights[:10000]
 
     scoring_statistics(learner.scores)
-
     plot_scores(learner.scores, run_name)
 
-    #How learner.weights is formatted: Top level is a list across iterations. Each element of this list is a list of numpy arrays.
-    #The numpy arrays contain the individual weight values for different layers. The order of the numpy arrays is:
+    #How learner.weights is formatted: Top level is a list across iterations. 
+    #Each element of this list is a list of numpy arrays.
+    #The numpy arrays contain the individual weight values for different layers. 
+    #The order of the numpy arrays is:
     #Layer #1 Inter-node weights, Layer #1 Bias weights, Layer #2 Inter-node weights, Layer #2 Bias weights, etc.
 
-    #general_weight_list = [[0,0,0], [0,0,1], [0,10,0], [0,10,1], [0,16,0], [0,16,1], [0,17,0], [0,17,1], [2,0,0], [2,1,0]]
-    #plot_select_weights(learner.weights, 1000, general_weight_list, run_name)
+    general_weight_list = [[0,0,0], [0,0,1], [0,10,0], [0,10,1], [0,16,0], [0,16,1], [0,17,0], [0,17,1], [2,0,0], [2,1,0]]
+    plot_select_weights(learner.weights, 1000, general_weight_list, run_name)
 
-    #bias_weight_list = [[1,0], [1,1], [3,0]]
-    #plot_select_bias_weights(learner.weights, 1000, bias_weight_list, run_name)
+    bias_weight_list = [[1,0], [1,1], [3,0]]
+    plot_select_bias_weights(learner.weights, 1000, bias_weight_list, run_name)
 
-    #plot_random_weights_true(learner.weights,20, 1000, 0, run_name)
-
-    #plot_random_weights_nice(learner.weights,20, 1000, 0, run_name)
-
-    #plot_random_weights_true(learner.weights,20, 1000, 1, run_name)
-
-    #plot_random_weights_nice(learner.weights,20, 1000, 1, run_name)
-
-    #plot_random_weights_true(learner.weights,20, 1000, None, run_name)
-
-    #plot_random_weights_nice(learner.weights,20, 1000, None, run_name)
+    plot_random_weights_true(learner.weights,20, 1000, 0, run_name)
+    plot_random_weights_nice(learner.weights,20, 1000, 0, run_name)
+    plot_random_weights_true(learner.weights,20, 1000, None, run_name)
+    plot_random_weights_nice(learner.weights,20, 1000, None, run_name)
 
 def get_results(filename):
     if os.path.isfile(filename):
         with gzip.open(filename, 'rb') as infile:
             learner = pickle.load(infile)
-
         graph(learner, filename[:(-7)])
-
     else:
         print('Cannot find file!')
-
-
-#FILENAMES = ['baseline1.pkl.gz', 'baseline2.pkl.gz', 'baseline3.pkl.gz', 'baseline4.pkl.gz', 'baseline5.pkl.gz', 'baseline6.pkl.gz', 'baseline7.pkl.gz', 'baseline8.pkl.gz' ,'baseline9.pkl.gz', 'baseline10.pkl.gz', 'baseline11.pkl.gz', 'baseline12.pkl.gz', 'baseline13.pkl.gz', 'baseline14.pkl.gz', 'baseline15.pkl.gz', 'baseline16.pkl.gz', 'baseline17.pkl.gz']
-
-#for afile in FILENAMES:
-#    get_results(afile)
 
 get_results(THEFILENAME)

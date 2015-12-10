@@ -1,6 +1,6 @@
-# -*- coding: UTF-8 -*-
-
-# Common values
+'''
+Configuration of keyboard buttons, for gameplay of 2048 by a user (not the AI).
+'''
 
 # Vim keys
 K, J, L, H = 107, 106, 108, 104
@@ -9,7 +9,6 @@ try:
     import termios
 except ImportError:
     # Windows
-
     import msvcrt
 
     UP, DOWN, RIGHT, LEFT = 72, 80, 77, 75
@@ -31,11 +30,9 @@ except ImportError:
 
 else:
     # Linux/OSX
-
     # refs:
     # http://bytes.com/topic/python/answers/630206-check-keypress-linux-xterm
     # http://stackoverflow.com/a/2521032/735926
-
     import sys
     import tty
 
